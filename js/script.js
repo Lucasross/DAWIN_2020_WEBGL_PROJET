@@ -16,7 +16,9 @@ const Scene = {
 		raycaster: new THREE.Raycaster(),
 		animSpeed: null,
 		animPercent: 0.00,
-		text: "DAWIN"
+		currentClonable: null,
+		currentClonableIndex: 0,
+		clonables: [],
 	},
 	animate: () => {
 		requestAnimationFrame(Scene.animate);
@@ -56,8 +58,6 @@ const Scene = {
 			vars.animPercent = 1;
 		}
 
-		console.log(vars.animPercent);
-
 		if (vars.animPercent > 0 && vars.animPercent < 1) {
 			Scene.vars.platform.position.y = vars.animPercent * 50;
 		} else if (vars.animPercent >= 1) {
@@ -66,7 +66,7 @@ const Scene = {
 			Scene.vars.platform.position.y = 0;
 		}
 	},
-	loadFBX: (file, scale, position, rotation, color, namespace, callback) => {
+	loadFBX: (file, scale, position, rotation, color, namespace, clonable, callback) => {
 		let loader = new FBXLoader();
 
 		if (file === undefined) {
@@ -77,24 +77,8 @@ const Scene = {
 
 			object.traverse((child) => {
 				if (child.isMesh) {
-
 					child.castShadow = true;
 					child.receiveShadow = true;
-
-					if (namespace === "plaquette") {
-						child.material = new THREE.MeshBasicMaterial({
-							map: Scene.vars.texture
-						});
-					}
-
-					if (namespace === "statuette") {
-						child.material = new THREE.MeshStandardMaterial({
-							color: new THREE.Color(color),
-							roughness: .3,
-							metalness: .6
-						})
-					}
-
 					child.material.color = new THREE.Color(color);
 				}
 			});
@@ -102,9 +86,13 @@ const Scene = {
 			object.position.set(position[0], position[1], position[2]);
 			object.rotation.set(rotation[0], rotation[1], rotation[2]);
 			object.scale.set(scale, scale, scale);
+			object.name = namespace;
 
 			Scene.vars[namespace] = object;
 
+			if(clonable) {
+				Scene.vars.clonables.push(object);
+			}
 			callback();
 		});
 	},
@@ -113,6 +101,18 @@ const Scene = {
 		vars.camera.aspect = window.innerWidth / window.innerHeight;
 		vars.camera.updateProjectionMatrix();
 		vars.renderer.setSize(window.innerWidth, window.innerHeight);
+	},
+	onKeyPress: (event) => {
+		if(event.code === "Space") {
+			let vars = Scene.vars;
+			vars.currentClonableIndex++;
+			if(vars.currentClonableIndex + 1 > vars.clonables.length) {
+				vars.currentClonableIndex = 0;
+			}
+			vars.currentClonable = vars.clonables[vars.currentClonableIndex];
+			console.log(vars.currentClonable);
+			alert("Selected item : " + vars.currentClonable.name);
+		}
 	},
 	onMouseMove: (event) => {
 		Scene.vars.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -125,9 +125,9 @@ const Scene = {
 			if (intersects.length > 0) {
 				let coord = intersects[0].point;
 
-				console.log("Flower at : " + coord.x + "/" + coord.y + "/" + coord.z);
+				console.log(Scene.vars.currentClonable.name + " at : " + coord.x + "/" + coord.y + "/" + coord.z);
 
-				let flower01Clone = Scene.vars.flower01.clone();
+				let flower01Clone = Scene.vars.currentClonable.clone();
 				flower01Clone.position.set(coord.x, coord.y, coord.z);
 				Scene.vars.scene.add(flower01Clone);
 			}
@@ -201,7 +201,7 @@ const Scene = {
 		let ground = new THREE.Mesh(
 			new THREE.PlaneBufferGeometry(2000, 2000),
 			new THREE.MeshLambertMaterial(
-				{ color: new THREE.Color(0x888888) }
+				{ color: new THREE.Color(0x709B40) }
 			)
 		);
 		ground.rotation.x = -Math.PI / 2;
@@ -233,9 +233,9 @@ const Scene = {
 			Scene.vars.text = decodeURI(text);
 		}
 
-		Scene.loadFBX("flower01.fbx", 1, [50, 0, 300], [0, 0, 0], 0xFFD700, 'flower01', () => {
-			Scene.loadFBX("rock01.fbx", 1, [-320, 0, 50], [0, 0, 0], 0x1A1A1A, 'rock01', () => {
-				Scene.loadFBX("tree01.fbx", 1, [0, 0, 0], [0, 0, 0], 0x1A1A1A, 'tree01', () => {
+		Scene.loadFBX("flower01.fbx", 1, [50, 0, 300], [0, 0, 0], 0xC4151C, 'flower01', true, () => {
+			Scene.loadFBX("rock01.fbx", 1, [-320, 0, 50], [0, 0, 0], 0x888C8D, 'rock01', true, () => {
+				Scene.loadFBX("tree01.fbx", 1, [0, 0, 0], [0, 0, 0], 0x755F44, 'tree01', true, () => {
 
 					let vars = Scene.vars;
 
@@ -245,6 +245,8 @@ const Scene = {
 					platform.add(vars.tree01);
 					vars.scene.add(platform);
 					vars.platform = platform;
+
+					vars.currentClonable = vars.flower01;
 
 					let elem = document.querySelector('#loading');
 					elem.parentNode.removeChild(elem);
@@ -260,14 +262,13 @@ const Scene = {
 		//vars.controls.maxDistance = 600;
 		vars.controls.minPolarAngle = Math.PI / 4;
 		vars.controls.maxPolarAngle = Math.PI / 2;
-		vars.controls.minAzimuthAngle = - Math.PI / 4;
-		vars.controls.maxAzimuthAngle = Math.PI / 4;
 		vars.controls.target.set(0, 100, 0);
 		vars.controls.update();
 
 		window.addEventListener('resize', Scene.onWindowResize, false);
 		window.addEventListener('mousemove', Scene.onMouseMove, false);
-		window.addEventListener('click', Scene.onMouseClick, false);
+		window.addEventListener('mousedown', Scene.onMouseClick, false);
+		window.addEventListener('keypress', Scene.onKeyPress, false);
 
 		vars.stats = new Stats();
 		vars.container.appendChild(vars.stats.dom);
