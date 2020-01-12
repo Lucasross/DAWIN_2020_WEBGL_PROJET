@@ -24,6 +24,16 @@ const Scene = {
 
 		Scene.customAnimation();
 
+		if (Scene.vars.platform !== undefined) {
+			let intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.platform.children, true);
+
+			if (intersects.length > 0) {
+				Scene.vars.animSpeed = 0.05;
+			} else {
+				Scene.vars.animSpeed = -0.05;
+			}
+		}
+
 		Scene.render();
 	},
 	render: () => {
@@ -48,33 +58,31 @@ const Scene = {
 			return;
 		}
 
-		if (vars.animPercent <= 0.33) {
-			Scene.vars.plaquette.position.z = 45 + (75 * vars.animPercent);
-			Scene.vars.texte.position.z = 45 + (150 * vars.animPercent);
+		console.log(Scene.vars.platform);
+
+		if (vars.animPercent <= 0.40) {
+			Scene.vars.platform.position.y = 45 + (75 * vars.animPercent);
+		} else if (vars.animPercent > 0.40) {
+			Scene.vars.platform.position.y = 75;
 		}
 
-		if (vars.animPercent >= 0.20 && vars.animPercent <= 0.75) {
-			let percent = (vars.animPercent - 0.2) / 0.55;
-			vars.socle1.position.x = 25 * percent;
-			vars.socle2.position.x = -25 * percent;
-			vars.logo.position.x = 45 + 50 * percent;
-			vars.logo2.position.x = -45 - 50 * percent;
+		if (vars.animPercent >= 0.20 && vars.animPercent <= 0.60) {
+
 		} else if (vars.animPercent < 0.20) {
-			vars.socle1.position.x = 0;
-			vars.socle2.position.x = 0;
-			vars.logo.position.x = 45;
-			vars.logo2.position.x = -45;
+
+		} else if (vars.animPercent > 0.60) {
+
 		}
 
-		if (vars.animPercent >= 0.40) {
-			let percent = (vars.animPercent - 0.4) / 0.6;
-			vars.statuette.position.y = 50 * percent;
-		} else if (vars.animPercent < 0.70) {
-			vars.statuette.position.y = 0;
+		if (vars.animPercent >= 0.40 && vars.animPercent <= 0.80) {
+
+		} else if (vars.animPercent > 0.80) {
+
+		} else if (vars.animPercent < 0.40) {
+
 		}
 	},
 	loadFBX: (file, scale, position, rotation, color, namespace, callback) => {
-		let vars = Scene.vars;
 		let loader = new FBXLoader();
 
 		if (file === undefined) {
