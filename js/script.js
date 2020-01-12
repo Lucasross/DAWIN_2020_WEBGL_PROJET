@@ -47,39 +47,23 @@ const Scene = {
 			return;
 		}
 
-		vars.animPercent = vars.animPercent + vars.animSpeed;
+		vars.animPercent += vars.animSpeed;	
 
 		if (vars.animPercent < 0) {
 			vars.animPercent = 0;
-			return;
 		}
 		if (vars.animPercent > 1) {
 			vars.animPercent = 1;
-			return;
 		}
 
-		console.log(Scene.vars.platform);
+		console.log(vars.animPercent);
 
-		if (vars.animPercent <= 0.40) {
-			Scene.vars.platform.position.y = 45 + (75 * vars.animPercent);
-		} else if (vars.animPercent > 0.40) {
-			Scene.vars.platform.position.y = 75;
-		}
-
-		if (vars.animPercent >= 0.20 && vars.animPercent <= 0.60) {
-
-		} else if (vars.animPercent < 0.20) {
-
-		} else if (vars.animPercent > 0.60) {
-
-		}
-
-		if (vars.animPercent >= 0.40 && vars.animPercent <= 0.80) {
-
-		} else if (vars.animPercent > 0.80) {
-
-		} else if (vars.animPercent < 0.40) {
-
+		if (vars.animPercent > 0 && vars.animPercent < 1) {
+			Scene.vars.platform.position.y = vars.animPercent * 50;
+		} else if (vars.animPercent >= 1) {
+			Scene.vars.platform.position.y = 50;
+		} else if (vars.animPercent <= 0) {
+			Scene.vars.platform.position.y = 0;
 		}
 	},
 	loadFBX: (file, scale, position, rotation, color, namespace, callback) => {
