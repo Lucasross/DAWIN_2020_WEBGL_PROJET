@@ -233,8 +233,8 @@ const Scene = {
 			Scene.vars.text = decodeURI(text);
 		}
 
-		Scene.loadFBX("flower01.fbx", 1, [0, 0, 0], [0, 0, 0], 0xFFD700, 'flower01', () => {
-			Scene.loadFBX("rock01.fbx", 1, [0, 0, 0], [0, 0, 0], 0x1A1A1A, 'rock01', () => {
+		Scene.loadFBX("flower01.fbx", 1, [50, 0, 300], [0, 0, 0], 0xFFD700, 'flower01', () => {
+			Scene.loadFBX("rock01.fbx", 1, [-320, 0, 50], [0, 0, 0], 0x1A1A1A, 'rock01', () => {
 				Scene.loadFBX("tree01.fbx", 1, [0, 0, 0], [0, 0, 0], 0x1A1A1A, 'tree01', () => {
 
 					let vars = Scene.vars;
