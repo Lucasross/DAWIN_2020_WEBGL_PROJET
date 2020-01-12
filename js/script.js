@@ -24,26 +24,6 @@ const Scene = {
 
 		Scene.customAnimation();
 
-		if (Scene.vars.goldGroup !== undefined) {
-			let intersects = Scene.vars.raycaster.intersectObjects(Scene.vars.goldGroup.children, true);
-
-			if (intersects.length > 0) {
-				Scene.vars.animSpeed = 0.05;
-			} else {
-				Scene.vars.animSpeed = -0.05;
-			}
-
-			// let mouse = new THREE.Vector3(Scene.vars.mouse.x, Scene.vars.mouse.y, 0);
-			// mouse.unproject(Scene.vars.camera);
-
-			// let ray = new THREE.Raycaster(Scene.vars.camera.position, mouse.sub(Scene.vars.camera.position).normalize()); 
-			// let intersects = ray.intersectObjects(Scene.vars.goldGroup.children, true);
-			// if(intersects.length > 0) {
-			// 	var arrow = new THREE.ArrowHelper(ray.ray.direction, ray.ray.origin, 1000, 0xFF00000);
-			// 	Scene.vars.scene.add(arrow);
-			// }
-		}
-
 		Scene.render();
 	},
 	render: () => {
@@ -127,58 +107,11 @@ const Scene = {
 				}
 			});
 
-			object.position.x = position[0];
-			object.position.y = position[1];
-			object.position.z = position[2];
+			object.position.set(position[0], position[1], position[2]);
+			object.rotation.set(rotation[0], rotation[1], rotation[2]);
+			object.scale.set(scale, scale, scale);
 
-			object.rotation.x = rotation[0];
-			object.rotation.y = rotation[1];
-			object.rotation.z = rotation[2];
-
-			object.scale.x = object.scale.y = object.scale.z = scale;
 			Scene.vars[namespace] = object;
-
-			callback();
-		});
-
-	},
-	loadText: (text, scale, position, rotation, color, namespace, callback) => {
-		let loader = new THREE.FontLoader();
-
-		if (text === undefined || text === "") {
-			return;
-		}
-
-		loader.load('./vendor/three.js-master/examples/fonts/helvetiker_regular.typeface.json', (font) => {
-			let geometry = new THREE.TextGeometry(text, {
-				font,
-				size: 1,
-				height: 0.1,
-				curveSegments: 1,
-				bevelEnabled: false
-			});
-
-			geometry.computeBoundingBox();
-			let offset = geometry.boundingBox.getCenter().negate();
-			geometry.translate(offset.x, offset.y, offset.z);
-
-			let material = new THREE.MeshBasicMaterial({
-				color: new THREE.Color(color)
-			});
-
-			let mesh = new THREE.Mesh(geometry, material);
-
-			mesh.position.x = position[0];
-			mesh.position.y = position[1];
-			mesh.position.z = position[2];
-
-			mesh.rotation.x = rotation[0];
-			mesh.rotation.y = rotation[1];
-			mesh.rotation.z = rotation[2];
-
-			mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
-
-			Scene.vars[namespace] = mesh;
 
 			callback();
 		});
@@ -192,6 +125,21 @@ const Scene = {
 	onMouseMove: (event) => {
 		Scene.vars.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 		Scene.vars.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+	},
+	onMouseClick: (event) => {
+		if (Scene.vars.platform !== undefined) {
+			let intersects = Scene.vars.raycaster.intersectObjects([Scene.vars.ground], false);
+
+			if (intersects.length > 0) {
+				let coord = intersects[0].point;
+
+				console.log("Flower at : " + coord.x + "/" + coord.y + "/" + coord.z);
+
+				let flower01Clone = Scene.vars.flower01.clone();
+				flower01Clone.position.set(coord.x, coord.y, coord.z);
+				Scene.vars.scene.add(flower01Clone);
+			}
+		}
 	},
 	init: () => {
 		let vars = Scene.vars;
@@ -217,7 +165,7 @@ const Scene = {
 		vars.container.appendChild(vars.renderer.domElement);
 
 		// ajout de la caméra
-		vars.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+		vars.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20000);
 		vars.camera.position.set(-1.5, 210, 572);
 
 		// ajout de la lumière
@@ -257,30 +205,17 @@ const Scene = {
 		// let helper2 = new THREE.DirectionalLightHelper(light2, 5);
 		// vars.scene.add(helper2);
 
-		let light3 = new THREE.DirectionalLight(0xFFFFFF, lightIntensity);
-		light3.position.set(400, 200, 400);
-		light3.castShadow = true;
-		light3.shadow.camera.left = -d;
-		light3.shadow.camera.right = d;
-		light3.shadow.camera.top = d;
-		light3.shadow.camera.bottom = -d;
-		light3.shadow.camera.far = 2000;
-		light3.shadow.mapSize.width = 4096;
-		light3.shadow.mapSize.height = 4096;
-		vars.scene.add(light3);
-		// let helper3 = new THREE.DirectionalLightHelper(light3, 5);
-		// vars.scene.add(helper3);
-
 		// ajout du sol
-		let mesh = new THREE.Mesh(
+		let ground = new THREE.Mesh(
 			new THREE.PlaneBufferGeometry(2000, 2000),
 			new THREE.MeshLambertMaterial(
 				{ color: new THREE.Color(0x888888) }
 			)
 		);
-		mesh.rotation.x = -Math.PI / 2;
-		mesh.receiveShadow = false;
-		vars.scene.add(mesh);
+		ground.rotation.x = -Math.PI / 2;
+		ground.receiveShadow = false;
+		vars.scene.add(ground);
+		vars.ground = ground;
 
 		let planeMaterial = new THREE.ShadowMaterial();
 		planeMaterial.opacity = 0.07;
@@ -306,7 +241,6 @@ const Scene = {
 			Scene.vars.text = decodeURI(text);
 		}
 
-		//x, y, z (horizontal, hauteur, profondeur)
 		Scene.loadFBX("flower01.fbx", 1, [0, 0, 0], [0, 0, 0], 0xFFD700, 'flower01', () => {
 			Scene.loadFBX("rock01.fbx", 1, [0, 0, 0], [0, 0, 0], 0x1A1A1A, 'rock01', () => {
 				Scene.loadFBX("tree01.fbx", 1, [0, 0, 0], [0, 0, 0], 0x1A1A1A, 'tree01', () => {
@@ -318,6 +252,7 @@ const Scene = {
 					platform.add(vars.rock01);
 					platform.add(vars.tree01);
 					vars.scene.add(platform);
+					vars.platform = platform;
 
 					let elem = document.querySelector('#loading');
 					elem.parentNode.removeChild(elem);
@@ -340,6 +275,7 @@ const Scene = {
 
 		window.addEventListener('resize', Scene.onWindowResize, false);
 		window.addEventListener('mousemove', Scene.onMouseMove, false);
+		window.addEventListener('click', Scene.onMouseClick, false);
 
 		vars.stats = new Stats();
 		vars.container.appendChild(vars.stats.dom);
