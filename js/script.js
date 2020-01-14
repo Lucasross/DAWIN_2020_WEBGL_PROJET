@@ -165,7 +165,7 @@ const Scene = {
 		vars.container.appendChild(vars.renderer.domElement);
 
 		// ajout de la caméra
-		vars.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
+		vars.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
 		vars.camera.position.set(-1.5, 210, 572);
 
 		// ajout de la lumière
@@ -281,8 +281,6 @@ const Scene = {
 		vars.stats = new Stats();
 		vars.container.appendChild(vars.stats.dom);
 
-		vars.camera.far = 5000;
-		console.log(vars.camera.far);
 		Scene.animate();
 	}
 };
