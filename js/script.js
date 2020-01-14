@@ -127,14 +127,16 @@ const Scene = {
 
 				console.log(Scene.vars.currentClonable.name + " at : " + coord.x + "/" + coord.y + "/" + coord.z);
 
-				let flower01Clone = Scene.vars.currentClonable.clone();
-				flower01Clone.position.set(coord.x, coord.y, coord.z);
-				Scene.vars.scene.add(flower01Clone);
+				let clone = Scene.vars.currentClonable.clone();
+				clone.position.set(coord.x, coord.y, coord.z);
+				clone.rotation.y = Scene.degresToRadian(Scene.getRandomInt(360));
+
+				Scene.vars.scene.add(clone);
 			}
 		}
 	},
 	degresToRadian: (degres) => {
-		return degres * PI / 180
+		return degres * Math.PI / 180
 	},
 	getRandomInt: (max) => {
 		return Math.floor(Math.random() * Math.floor(max));
@@ -280,6 +282,7 @@ const Scene = {
 		vars.container.appendChild(vars.stats.dom);
 
 		vars.camera.far = 5000;
+		console.log(vars.camera.far);
 		Scene.animate();
 	}
 };
