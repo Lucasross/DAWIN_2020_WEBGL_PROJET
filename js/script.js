@@ -49,7 +49,7 @@ const Scene = {
 			return;
 		}
 
-		vars.animPercent += vars.animSpeed;	
+		vars.animPercent += vars.animSpeed;
 
 		if (vars.animPercent < 0) {
 			vars.animPercent = 0;
@@ -90,7 +90,7 @@ const Scene = {
 
 			Scene.vars[namespace] = object;
 
-			if(clonable) {
+			if (clonable) {
 				Scene.vars.clonables.push(object);
 			}
 			callback();
@@ -103,10 +103,10 @@ const Scene = {
 		vars.renderer.setSize(window.innerWidth, window.innerHeight);
 	},
 	onKeyPress: (event) => {
-		if(event.code === "Space") {
+		if (event.code === "Space") {
 			let vars = Scene.vars;
 			vars.currentClonableIndex++;
-			if(vars.currentClonableIndex + 1 > vars.clonables.length) {
+			if (vars.currentClonableIndex + 1 > vars.clonables.length) {
 				vars.currentClonableIndex = 0;
 			}
 			vars.currentClonable = vars.clonables[vars.currentClonableIndex];
@@ -126,10 +126,22 @@ const Scene = {
 				let coord = intersects[0].point;
 
 				console.log(Scene.vars.currentClonable.name + " at : " + coord.x + "/" + coord.y + "/" + coord.z);
+				let modelSelect = document.getElementById("models");
+				let indexModels = modelSelect.options[modelSelect.selectedIndex].value;
 
-				let clone = Scene.vars.currentClonable.clone();
+				let clone = Scene.vars.clonables[indexModels].clone();
 				clone.position.set(coord.x, coord.y, coord.z);
 				clone.rotation.y = Scene.degresToRadian(Scene.getRandomInt(360));
+
+				let color = document.getElementById("color").value;
+				console.log(color);
+
+				clone.traverse((child) => {
+					if (child.isMesh) {
+						child.material = child.material.clone();
+						child.material.color = new THREE.Color(color);
+					}
+				});
 
 				Scene.vars.scene.add(clone);
 			}
@@ -152,7 +164,7 @@ const Scene = {
 		// ajout de la scène
 		vars.scene = new THREE.Scene();
 		vars.scene.background = new THREE.Color(0xa0a0a0);
-		vars.scene.fog = new THREE.Fog(vars.scene.background, 500, 3000);
+		vars.scene.fog = new THREE.Fog(vars.scene.background, 500, 11000);
 
 		// paramétrage du moteur de rendu
 		vars.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -258,6 +270,23 @@ const Scene = {
 
 					let elem = document.querySelector('#loading');
 					elem.parentNode.removeChild(elem);
+
+					// get reference to select element
+					var select = document.getElementById('models');
+
+					vars.clonables.forEach(function (model, i) {
+						// create new option element
+						var opt = document.createElement('option');
+
+						// create text node to add to option element (opt)
+						opt.appendChild(document.createTextNode(model.name));
+
+						// set value property of opt
+						opt.value = i;
+
+						// add opt to end of select box (sel)
+						select.appendChild(opt);
+					});
 				});
 			});
 		});

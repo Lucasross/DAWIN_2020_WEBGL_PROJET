@@ -26,8 +26,8 @@
 			-webkit-user-select: none;
 			-ms-user-select: none;
 			user-select: none;
-			pointer-events: none;
 			z-index: 1;
+			overflow-y: hidden;
 			/* TODO Solve this in HTML */
 		}
 	</style>
@@ -46,7 +46,12 @@
 		</div>
 	</div>
 	<div id="info">
-		Ceci est un test
+		Model 3D :
+		<select id="models">
+		</select>
+		<br>
+		Color :
+		<input type="color" id="color" value="#e66465">
 	</div>
 	<script src="js/script.js" type="module"></script>
 </body>
