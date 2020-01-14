@@ -133,6 +133,12 @@ const Scene = {
 			}
 		}
 	},
+	degresToRadian: (degres) => {
+		return degres * PI / 180
+	},
+	getRandomInt: (max) => {
+		return Math.floor(Math.random() * Math.floor(max));
+	},
 	init: () => {
 		let vars = Scene.vars;
 
@@ -157,7 +163,7 @@ const Scene = {
 		vars.container.appendChild(vars.renderer.domElement);
 
 		// ajout de la caméra
-		vars.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20000);
+		vars.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
 		vars.camera.position.set(-1.5, 210, 572);
 
 		// ajout de la lumière
@@ -176,7 +182,7 @@ const Scene = {
 		light1.shadow.camera.right = d;
 		light1.shadow.camera.top = d;
 		light1.shadow.camera.bottom = -d;
-		light1.shadow.camera.far = 2000;
+		light1.shadow.camera.far = 5000;
 		light1.shadow.mapSize.width = 4096;
 		light1.shadow.mapSize.height = 4096;
 		vars.scene.add(light1);
@@ -190,7 +196,7 @@ const Scene = {
 		light2.shadow.camera.right = d;
 		light2.shadow.camera.top = d;
 		light2.shadow.camera.bottom = -d;
-		light2.shadow.camera.far = 2000;
+		light2.shadow.camera.far = 5000;
 		light2.shadow.mapSize.width = 4096;
 		light2.shadow.mapSize.height = 4096;
 		vars.scene.add(light2);
@@ -273,6 +279,7 @@ const Scene = {
 		vars.stats = new Stats();
 		vars.container.appendChild(vars.stats.dom);
 
+		vars.camera.far = 5000;
 		Scene.animate();
 	}
 };
