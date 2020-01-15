@@ -104,14 +104,8 @@ const Scene = {
 	},
 	onKeyPress: (event) => {
 		if (event.code === "Space") {
-			let vars = Scene.vars;
-			vars.currentClonableIndex++;
-			if (vars.currentClonableIndex + 1 > vars.clonables.length) {
-				vars.currentClonableIndex = 0;
-			}
-			vars.currentClonable = vars.clonables[vars.currentClonableIndex];
-			console.log(vars.currentClonable);
-			alert("Selected item : " + vars.currentClonable.name);
+			let modelSelect = document.getElementById("models");
+			modelSelect.selectedIndex++;
 		}
 	},
 	onMouseMove: (event) => {
